@@ -1,0 +1,12 @@
+a{
+    text-decoration: none;
+}
+img{
+    width: 100%;
+}
+:root {
+  --primary-color: #4DA8DA;
+  --secondary-color: #64748B;
+  --success-color: #22c55e;
+  --error-color: #ef4444;
+}
