@@ -25,7 +25,8 @@ const Login = () => {
     setError(null);
 
     try {
-const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.where=userid="${userName}"&_lid=${userName}&_lpwd=${password}`;
+      // ✅ Use proxy path (/maximo) instead of hardcoding full IP
+      const apiUrl = `/maximo/maxrest/oslc/os/PORTALUSER?lean=1&oslc.select=*&oslc.where=user.userid="${userName}"&_lid=${userName}&_lpwd=${password}`;
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -39,11 +40,11 @@ const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.wh
       }
 
       const data = await response.json();
-
       console.log("Login Response:", data);
 
-      // ✅ If login is successful, navigate to dashboard
+      // ✅ Navigate only if login is successful
       navigate("/dashboard", { replace: true });
+
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message);
@@ -64,7 +65,7 @@ const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.wh
         </div>
         <div className="brand-title">
           <h1>Sign In</h1>
-        </div> 
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="login-form">
@@ -102,13 +103,13 @@ const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.wh
               <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
             </button>
           </div>
-        </div> 
+        </div>
 
         <div className="robot-check">
           <Link to="/password-recovery" className="forgot-password">
             Forgot password?
           </Link>
-        </div> 
+        </div>
 
         <div className="terms-check">
           <input
@@ -119,7 +120,7 @@ const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.wh
             required
           />
           <label htmlFor="termsCheck">I agree to Ultimate Trade Terms of use</label>
-        </div> 
+        </div>
 
         <button 
           type="submit" 
