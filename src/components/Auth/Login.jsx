@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock, faEnvelope, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faLock,
+  faEnvelope,
+  faEye,
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import "../../Style/login.css";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState();
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,25 +30,35 @@ const Login = () => {
     setError(null);
 
     try {
-const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.where=userid="${userName}"&_lid=${userName}&_lpwd=${password}`;
-
+      const apiUrl = `/maximo/maxrest/oslc/os/PORTALUSER?lean=1&oslc.select=*&oslc.where=user.LOGINID="${userName}"&_lid=${userName}&_lpwd=${password}`;
+      // const apiUrl = `http://192.168.0.73:9080/maxrest/oslc/os/PORTALUSER?lean=1&oslc.select=*&oslc.where=user.LOGINID="${userName}"&_lid=${userName}&_lpwd=${password}`;
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Basic " + btoa(`${userName}:${password}`),
         },
+        credentials: "omit",
       });
 
       if (!response.ok) {
-        throw new Error(`Login failed with status ${response.status}`);
+        // ❌ لو الـ status مش 200 امسح أي بيانات قديمة
+        localStorage.removeItem("userData");
+        throw new Error("Invalid username or password");
       }
 
       const data = await response.json();
+      const user = data?.member?.[0];
 
-      console.log("Login Response:", data);
-
-      // ✅ If login is successful, navigate to dashboard
-      navigate("/dashboard", { replace: true });
+      if (user) {
+        // ✅ خزن بس لو في بيانات يوزر فعلاً
+        localStorage.setItem("userData", JSON.stringify(user));
+        navigate("/dashboard", { replace: true });
+      } else {
+        // ❌ لو مفهوش يوزر امسح القديم
+        localStorage.removeItem("userData");
+        throw new Error("Invalid username or password");
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message);
@@ -60,11 +75,14 @@ const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.wh
     <div className="login-container">
       <div className="login-header">
         <div className="login-links">
-          <Link to="/login" className="active">Sign In</Link>
+          <Link to="/login" className="active">
+            Sign In
+          </Link>
         </div>
         <div className="brand-title">
           <h1>Sign In</h1>
-        </div> 
+        </div>
+        {error && <p className="error-message">❌ {error}</p>}
       </div>
 
       <form onSubmit={handleSubmit} className="login-form">
@@ -102,13 +120,13 @@ const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.wh
               <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
             </button>
           </div>
-        </div> 
+        </div>
 
         <div className="robot-check">
           <Link to="/password-recovery" className="forgot-password">
             Forgot password?
           </Link>
-        </div> 
+        </div>
 
         <div className="terms-check">
           <input
@@ -118,19 +136,15 @@ const apiUrl = `/maximo/maxrest/oslc/os/PORTALLOGIN?lean=1&oslc.select=*&oslc.wh
             onChange={() => setAgreeTerms(!agreeTerms)}
             required
           />
-          <label htmlFor="termsCheck">I agree to Ultimate Trade Terms of use</label>
-        </div> 
+          <label htmlFor="termsCheck">
+            I agree to Ultimate Trade Terms of use
+          </label>
+        </div>
 
-        <button 
-          type="submit" 
-          className="login-button"
-          disabled={isLoading}
-        >
+        <button type="submit" className="login-button" disabled={isLoading}>
           {isLoading ? "Signing In..." : "Sign In"}
         </button>
       </form>
-
-      {error && <p className="error-message">❌ {error}</p>}
 
       <div className="welcome-message">
         <p>Welcome to the Universal Trading digital wallet</p>

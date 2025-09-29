@@ -13,12 +13,13 @@ import "../../Style/NavBar.css";
 import { Container } from "react-bootstrap";
 import profile from "../../assets/profile.png";
 import { useSidebar } from "../Context/SidebarContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const { toggleSidebar } = useSidebar();
-
+  const navigate = useNavigate();
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -26,12 +27,33 @@ export default function Navbar() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+  const handleLogout = () => {
+  // 🗑️ امسح بيانات localStorage
+  localStorage.removeItem("userData");
+
+  // 🗑️ امسح الكوكيز اللي المتصفح شايفها (مش HttpOnly)
+  document.cookie.split(";").forEach((cookie) => {
+    const name = cookie.split("=")[0].trim();
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  });
+
+  // ✅ رجّع لصفحة login
+  navigate("/login", { replace: true });
+};
+  const handleMenuAction = (action) => {
+    if (action === "logout") {
+      handleLogout()
+
+    }
+
+    // Close menu
+    handleMenuClose();
+  };
 
   const menuItems = [
     { label: "Profile", action: "profile" },
     { label: "Settings", action: "settings" },
-        { label: "Log Out", action: "settings" },
-
+    { label: "Log Out", action: "logout" }, // ✅ fixed
   ];
 
   return (
@@ -151,7 +173,7 @@ export default function Navbar() {
               {menuItems.map((item) => (
                 <MenuItem
                   key={item.action}
-                  onClick={handleMenuClose}
+                  onClick={() => handleMenuAction(item.action)}
                   sx={{
                     color: "#000",
                     fontSize: "0.875rem",

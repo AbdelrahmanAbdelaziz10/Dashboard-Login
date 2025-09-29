@@ -82,12 +82,7 @@
   background: transparent;
 }
 
-.error-message {
-  color: #e74c3c;
-  font-size: 12px;
-  margin-top: 5px;
-  display: block;
-}
+
 
 .robot-check {
   display: flex;
@@ -170,19 +165,9 @@
   padding-right: 35px;
   width: 100%;
 }
-.error-message {
-  color: #e74c3c;
-  font-size: 12px;
-  margin-top: 5px;
-  display: block;
-  height: 0;
-  overflow: hidden;
-  transition: height 0.3s ease;
-}
 
-.input-group:has(.error-message:not(:empty)) .error-message {
-  height: 18px;
-}
+
+
 
 .signup-container .input-group{
   margin-bottom: 1rem !important;

@@ -7,40 +7,48 @@ import ServiceRequest from './Pages/ServiceRequest';
 import WorkOrder from './Pages/WorkOrder';
 import { DashBoard } from './Pages/DashBoard';
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <App />,
+      children: [
+        {
+          index: true,
+          element: <Navigate to="/login" replace />, // Default redirect
+        },
+        {
+          path: 'login',
+          element: <LoginPage />,
+        },
+        {
+          path: 'signup',
+          element: <SingUpPage />,
+        },
+        {
+          path: 'password-recovery',
+          element: <PasswordRecoveryPage />,
+        },
+        {
+          path: 'dashboard',
+          element: <DashBoard />,
+        },
+        {
+          path: 'service-request',
+          element: <ServiceRequest />,
+        },
+        {
+          path: 'work-orders',
+          element: <WorkOrder />,
+        },
+      ],
+    },
+  ],
   {
-    path: '/',
-    element: <App />,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="/dashboard" replace />, // Default redirect
-      },
-      {
-        path: '/login',
-        element: <LoginPage />,
-      },
-      {
-        path: '/signup',
-        element: <SingUpPage />,
-      },
-      {
-        path: '/password-recovery',
-        element: <PasswordRecoveryPage />,
-      },
-      {
-        path: '/dashboard',
-        element: <DashBoard />,   // No protection
-      },
-      {
-        path: '/service-request',
-        element: <ServiceRequest />,   // No protection
-      },{
-        path: '/work-orders',
-        element: <WorkOrder /> ,   // No protection
-      },
-    ],
-  },
-]);
+    basename: '/myapp/', // 👈 VERY 
+        // basename: '/', // 👈 VERY IMPORTANT
+
+  }
+);
 
 export default router;

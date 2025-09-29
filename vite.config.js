@@ -21,3 +21,16 @@ export default defineConfig({
     assetsDir: "assets",
   },
 });
+
+
+// import { defineConfig } from "vite";
+// import react from "@vitejs/plugin-react-swc";
+
+// export default defineConfig({
+//   plugins: [react()],
+//   base: "/myapp/", // MUST match your Tomcat app context
+//   build: {
+//     outDir: "dist",
+//     assetsDir: "assets",
+//   },
+// });

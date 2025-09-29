@@ -70,36 +70,7 @@ const handleAction = (action) => {
     pendingWorkOrders: 150,
     closedWorkOrders: 900,
   };
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch("http://192.168.0.180:9090/api/sr/all", {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           // 🔹 Removed Authorization header
-  //         },
-  //       });
-
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! status: ${response.status}`);
-  //       }
-
-  //       const data = await response.json();
-  //       setSrData(data);
-  //     } catch (err) {
-  //       setError(err.message || "Something went wrong");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []); // 🔹 No token dependency
-
-  // UI states
-  // if (loading) return <div>Loading Service Requests...</div>;
-  // if (error) return <div>Error: {error}</div>;
-
+  
   return (
     <div className="app-container">
       <Navbar />
@@ -114,7 +85,7 @@ const handleAction = (action) => {
         >
           <Sidebar isOpen={sidebarOpen} width={sidebarWidth} />
           <main
-            className="content-area"
+            className="content-area mb-4"
             style={{ marginLeft: `${sidebarWidth}px` }}
           >
             {/* Header */}
@@ -206,7 +177,9 @@ const handleAction = (action) => {
               }}
             >
               <h5 className="mb-3">Service Requests</h5>
-              <Table responsive striped hover>
+      <TableData rows={srData} loading={false} error={null} />
+
+              {/* <Table responsive striped hover>
                 <thead>
                   <tr>
                     <th>Number</th>
@@ -247,7 +220,7 @@ const handleAction = (action) => {
                     </tr>
                   ))}
                 </tbody>
-              </Table>
+              </Table> */}
             </Box>
 
             {/* <div className="mb-5">

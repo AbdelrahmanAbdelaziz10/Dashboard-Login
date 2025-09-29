@@ -1,75 +1,33 @@
 import * as React from "react";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import { styled } from "@mui/material/styles";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  CircularProgress,
+  Box,
+  Button,
+} from "@mui/material";
+import '../../Style/Tabledata.css'
+// Example static data fallback
 
-// Define columns configuration
-const COLUMNS = [
-  { id: "ticketid", label: "Ticket", minWidth: 20, align: "center" },
-  { id: "description", label: "Description", minWidth: 50 },
-  { id: "owner", label: "Owner", minWidth: 50, align: "center" },
-  { id: "assetsiteid", label: "Organization", minWidth: 50, align: "center" },
-  { id: "commodity", label: "Commodity", minWidth: 100, align: "center" },
-  { id: "reportedby", label: "Reported By", minWidth: 50, align: "center" },
-  { id: "reportdate", label: "Reported Date", minWidth: 50, align: "center" },
-  {
-    id: "commoditygroup",
-    label: "Commodity Group",
-    minWidth: 100,
-    align: "center",
-  },
-  { id: "reportedpriority", label: "Priority", minWidth: 100, align: "center" },
-];
 
-// Styled components
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  fontWeight: "bold",
-  fontSize: "0.875rem",
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.common.white,
-  "&:first-of-type": {
-    borderTopLeftRadius: theme.shape.borderRadius,
-  },
-  "&:last-of-type": {
-    borderTopRightRadius: theme.shape.borderRadius,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)({
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-});
-
-const TableData = ({ srData = [], loading = false, error = null }) => {
+const TableData = ({ rows, loading , error}) => {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const rowsPerPage = 5; // fixed per design
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    const newRowsPerPage =
-      event.target.value === "All" ? srData.length : +event.target.value;
-    setRowsPerPage(newRowsPerPage);
-    setPage(0); // Reset to first page when changing rows per page
-  };
-
-  // Calculate current rows to display
+  // Current visible rows
   const currentRows = React.useMemo(() => {
-    return rowsPerPage > 0
-      ? srData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      : srData;
-  }, [srData, page, rowsPerPage]);
+    return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [rows, page]);
 
   // Loading state
   if (loading) {
@@ -83,121 +41,74 @@ const TableData = ({ srData = [], loading = false, error = null }) => {
   // Error state
   if (error) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          p: 4,
-          color: "error.main",
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4, color: "error.main" }}>
         Error loading data: {error.message || error}
       </Box>
     );
   }
 
   // Empty state
-  if (!srData.length) {
+  if (!rows.length) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          p: 4,
-          color: "text.secondary",
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4, color: "text.secondary" }}>
         No service requests found
       </Box>
     );
   }
 
   return (
-    <Paper
-      sx={{
-        width: "100%",
-        overflow: "hidden",
-        boxShadow: 3,
-        borderRadius: 2,
-      }}
-    >
-      <TableContainer sx={{ maxHeight: "auto" }}>
-        <Table stickyHeader aria-label="service requests table">
+    <Paper sx={{ width: "100%", overflow: "hidden", boxShadow: 3, borderRadius: 2 }}>
+      <TableContainer>
+        <Table stickyHeader>
           <TableHead>
-            <StyledTableRow>
-              {COLUMNS.map((column) => (
-                <StyledTableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                >
-                  {column.label}
-                </StyledTableCell>
-              ))}
-            </StyledTableRow>
+            <TableRow>
+              <TableCell className="table-header">Number</TableCell>
+               <TableCell className="table-header">Status</TableCell>
+               <TableCell className="table-header">Owner</TableCell>
+               <TableCell className="table-header">Priority</TableCell>
+               <TableCell className="table-header">Created</TableCell>
+               <TableCell className="table-header">Actions</TableCell>
+            </TableRow>
           </TableHead>
           <TableBody>
-            {currentRows.map((row) => {
-              // Generate a stable key for each row
-              const rowKey =
-                row.ticketid ||
-                row.id ||
-                `row-${Math.random().toString(36).substr(2, 9)}`;
-
-              return (
-                <TableRow
-                  hover
-                  role="checkbox"
-                  tabIndex={-1}
-                  key={rowKey}
-                  sx={{
-                    "&:nth-of-type(odd)": {
-                      backgroundColor: "action.hover",
-                    },
-                    "&:last-child td": {
-                      borderBottom: 0,
-                    },
-                  }}
-                >
-                  {COLUMNS.map((column) => {
-                    const cellKey = `${rowKey}-${column.id}`;
-                    const value = row[column.id];
-
-                    return (
-                      <TableCell
-                        key={cellKey}
-                        align={column.align}
-                        sx={{
-                          fontSize: "0.875rem",
-                          padding: "12px 16px",
-                        }}
-                      >
-                        {value || "-"}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
+            {currentRows.map((item) => (
+              <TableRow key={item.id} hover>
+                <TableCell>{item.number}</TableCell>
+                <TableCell>
+                  <span className={`status-badge ${item.status.toLowerCase().replace(" ", "-")}`}>
+                    {item.status}
+                  </span>
+                </TableCell>
+                <TableCell>{item.owner}</TableCell>
+                <TableCell>
+                  <span className={`priority-badge ${item.priority.toLowerCase()}`}>
+                    {item.priority}
+                  </span>
+                </TableCell>
+                <TableCell>{item.created}</TableCell>
+                <TableCell>
+                  <Button size="small" variant="outlined">
+                    View
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Pagination */}
       <TablePagination
         component="div"
-        count={srData.length}
-        rowsPerPage={rowsPerPage}
+        count={rows.length}
         page={page}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={[]} // hide rowsPerPage dropdown
         onPageChange={handleChangePage}
-        rowsPerPageOptions={[]}
-        onRowsPerPageChange={() => {}} // no-op since hidden
-        // rowsPerPageOptions={[10, 20, { label: "All", value: "All" }]}
-        // onRowsPerPageChange={handleChangeRowsPerPage}
-        sx={{
-          borderTop: "1px solid",
-          borderColor: "divider",
-        }}
+        onRowsPerPageChange={() => {}} // no-op
+        labelDisplayedRows={({ from, to, count }) => `${from}–${to} of ${count}`}
+        sx={{ borderTop: "1px solid", borderColor: "divider" }}
       />
-
     </Paper>
   );
 };
