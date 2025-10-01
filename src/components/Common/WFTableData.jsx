@@ -14,7 +14,7 @@ import {
 import "../../Style/Tabledata.css";
 import { useNavigate } from "react-router-dom";
 
-const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
+const WFTableData = ({ srDataTwo, ColorTable, loading, error }) => {
   const [page, setPage] = React.useState(0);
   const rowsPerPage = 10; // fixed to 10 rows per page
   console.log("new Api:", srDataTwo);
@@ -126,7 +126,7 @@ const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
           <TableBody>
             {currentRows.map((item) => (
               <TableRow
-                key={item.ticketid}
+                key={item.sr[0]?.ticketid}
                 hover
                 sx={{
                   transition: "all 0.2s",
@@ -136,23 +136,23 @@ const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
                   },
                 }}
               >
-                <TableCell>{item.ticketid || "NULL"}</TableCell>{" "}
-                <TableCell>{item.description || "NULL"}</TableCell>{" "}
-                <TableCell>{item.exedept || "NULL"}</TableCell>{" "}
-                <TableCell>{item.worktype || "NULL"}</TableCell>{" "}
-                <TableCell>{item.reportedpriority || "NULL"}</TableCell>{" "}
-                <TableCell>{item.reportedby || "NULL"}</TableCell>{" "}
-                <TableCell>{item.reportdate || "NULL"}</TableCell>{" "}
+                <TableCell>{item.sr[0]?.ticketid || "NULL"}</TableCell>{" "}
+                <TableCell>{item.sr[0]?.description || "NULL"}</TableCell>{" "}
+                <TableCell>{item.sr[0]?.exedept || "NULL"}</TableCell>{" "}
+                <TableCell>{item.sr[0]?.worktype || "NULL"}</TableCell>{" "}
+                <TableCell>{item.sr[0]?.reportedpriority || "NULL"}</TableCell>{" "}
+                <TableCell>{item.sr[0]?.reportedby || "NULL"}</TableCell>{" "}
+                <TableCell>{item.sr[0]?.reportdate || "NULL"}</TableCell>{" "}
                 <TableCell>
                   <span
-                    className={`status-badge ${item.status
+                    className={`status-badge ${item.sr[0]?.status
                       ?.toLowerCase()
                       .replace(" ", "-")}`}
                   >
-                    {item.status}{" "}
+                    {item.sr[0]?.status}{" "}
                   </span>
                 </TableCell>
-                <TableCell>{item.statusdate}</TableCell>
+                <TableCell>{item.sr[0]?.statusdate}</TableCell>
                 <TableCell>
                   <Button
                     size="small"
@@ -168,12 +168,13 @@ const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
                       },
                     }}
                     onClick={() =>
-                      navigate(`/service-request/${item.ticketid}`)
+                      navigate(`/service-request/${item.sr[0]?.ticketid}`)
                     } // ✅ navigate to details page
                   >
                     View
                   </Button>
                 </TableCell>
+
               </TableRow>
             ))}
           </TableBody>
@@ -201,4 +202,12 @@ const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
   );
 };
 
-export default TableData;
+
+export default WFTableData
+
+
+
+
+
+
+

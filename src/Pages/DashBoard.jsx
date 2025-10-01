@@ -26,7 +26,7 @@ export function DashBoard() {
     const fetchData = async () => {
       try {
         const apiUrl =
-          "http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASS?lean=1&oslc.select=*&_lid=Helpdesk%201&_lpwd=Test1234";
+          "/maximo/maxrest/oslc/os/MXAPIWFASSIGNMENT?lean=1&oslc.select=*&_lid=Helpdesk%201&_lpwd=Test1234";
 
         const response = await fetch(apiUrl, {
           method: "GET",

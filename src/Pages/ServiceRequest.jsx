@@ -1,244 +1,293 @@
 import { useEffect, useState } from "react";
-import { Col, Container, Row, Dropdown, Table } from "react-bootstrap";
-import { Box } from "@mui/material";
+import { Col, Row, Dropdown } from "react-bootstrap";
+import { Box, Typography, Grid } from "@mui/material";
+import { Assignment, BarChart, EventAvailable } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Common/Navbar";
 import Sidebar from "../components/Common/Sidebar";
-import DashboardCard from "../components/Common/Card";
 import TableData from "../components/Common/TableData";
-import { useSidebar } from "../components/Context/SidebarContext"; 
+import { useSidebar } from "../components/Context/SidebarContext";
 import AddIcon from "@mui/icons-material/Add";
 import "../Style/ServiceRequest.css";
-import CloseIcon from "@mui/icons-material/Close";
-import { useFetch } from "../hooks/useFetch";
 import ReportsModal from "../components/ReportsModal";
-
- const staticData = [
-    { id: 1, number: "SR-001", status: "Open", owner: "John Doe", priority: "High", created: "2025-09-15" },
-    { id: 2, number: "SR-002", status: "In Progress", owner: "Jane Smith", priority: "Medium", created: "2025-09-16" },
-    { id: 3, number: "SR-003", status: "Closed", owner: "Mike Johnson", priority: "Low", created: "2025-09-10" },
-    { id: 4, number: "SR-004", status: "Open", owner: "Sarah Wilson", priority: "High", created: "2025-09-17" },
-    { id: 5, number: "SR-005", status: "Pending", owner: "Alex Brown", priority: "Medium", created: "2025-09-14" },
-      { id: 6, number: "SR-006", status: "Closed", owner: "Mike Johnson", priority: "Low", created: "2025-09-10" },
-    { id: 7, number: "SR-007", status: "Closed", owner: "Mike Johnson", priority: "Low", created: "2025-09-10" },
-    { id: 8, number: "SR-008", status: "Closed", owner: "Mike Johnson", priority: "Low", created: "2025-09-10" },
-    { id: 9, number: "SR-009", status: "Closed", owner: "Mike Johnson", priority: "Low", created: "2025-09-10" },
-
-  ];
-
+import { getFetch } from "../hooks/getFetch";
+import { Outlet } from "react-router-dom";
+import WFTableData from "../components/Common/WFTableData";
 
 const ServiceRequest = () => {
-  const [srData, setSrData] = useState(staticData);
+  const [filter, setFilter] = useState("1");
+  // ✅ Fetch SR data
+  const {
+    data: sRData,
+    loading: srLoading,
+    error: srError,
+  } = getFetch(
+    "http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=REPORTEDBY=%22HELPDESK1%22&_lid=Helpdesk%201&_lpwd=Test1234"
+  );
+  const {
+    data: wfSRData,
+    loading: wfSrLoading,
+    error: wfSrError,
+  } = getFetch(
+    "http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=app=%22SR%22&_lid=Helpdesk%201&_lpwd=Test1234"
+  );
+  // ✅ All SR data
+  const allSRData = sRData?.member ?? [];
+  const allSRData2 = wfSRData?.member ?? [];
+
+  // ✅ State for filtered data
+  const [srDataTwo, setSrDataTwo] = useState(allSRData);
+  const [dataLength, setDataLength] = useState(srDataTwo.length);
+
+  // update whenever API data changes
+  useEffect(() => {
+    setSrDataTwo(allSRData);
+  }, [sRData]);
+
+  // ✅ Filter logic
+  const ShowTotalSr = (value) => {
+    setFilter(value);
+    if (value === "1") {
+      setSrDataTwo(allSRData); // ✅ Show all
+      setDataLength(srDataTwo.length);
+    } else if (value === "2") {
+      setSrDataTwo(allSRData2); // ✅ Empty
+      setDataLength(srDataTwo.length);
+    } else if (value === "3") {
+      setSrDataTwo([]);
+      setDataLength(0);
+    }
+  };
+  const stats = [
+    {
+      label: "Total SR",
+      value: allSRData.length,
+      color: "linear-gradient(135deg, #ff9a9e, #f6416c)", // box color
+      headerColor: "#f6416c", // ✅ solid color for header
+      icon: <Assignment fontSize="large" />,
+      filter: "1",
+    },
+    {
+      label: "Overview",
+      value: allSRData2.length,
+      color: "linear-gradient(135deg, #6a11cb, #2575fc)",
+      headerColor: "#2575fc",
+      icon: <BarChart fontSize="large" />,
+      filter: "2",
+    },
+    {
+      label: "Due Today",
+      value: 0,
+      color: "linear-gradient(135deg, #f7971e, #ffd200)",
+      headerColor: "#f7971e",
+      icon: <EventAvailable fontSize="large" />,
+      filter: "3",
+    },
+  ];
+
+  {
+    /* Filter To Total SR*/
+  }
+
+  const { sidebarOpen } = useSidebar();
+  const sidebarWidth = sidebarOpen ? 220 : 65;
+  const [color, setColor] = useState();
   const [showReportsModal, setShowReportsModal] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
 
-  const { sidebarOpen } = useSidebar(); 
-  const sidebarWidth = sidebarOpen ? 220 : 65;
-const handleAction = (action) => {
+  const changeColor = (value) => {
+    setColor(value);
+    console.log("the color in of fun:", color);
+  };
+  console.log("the color out of fun:", color);
+
+  // ✅ Handle actions
+  const handleAction = (action) => {
     setSelectedAction(action);
-    
+
     switch (action) {
-      case 'changeStatus':
-        console.log('Changing status...');
+      case "changeStatus":
+        console.log("Changing status...");
         break;
-      case 'selectOwner':
-        console.log('Selecting owner...');
+      case "selectOwner":
+        console.log("Selecting owner...");
         break;
-      case 'takeOwnership':
-        console.log('Taking ownership...');
+      case "takeOwnership":
+        console.log("Taking ownership...");
         break;
-      case 'runReports':
-        console.log('Running reports...');
+      case "runReports":
+        console.log("Running reports...");
         setShowReportsModal(true);
         break;
-      case 'cognosAnalytics':
-        console.log('Opening Cognos Analytics...');
+      case "cognosAnalytics":
+        console.log("Opening Cognos Analytics...");
         break;
       default:
         break;
     }
   };
 
-  const handleCloseReportsModal = () => {
-    setShowReportsModal(false);
-  };
-
-  // Static data for dashboard cards
-  const dashboardStats = {
-    serviceRequests: 550,
-    allWorkOrders: 1050,
-    pendingWorkOrders: 150,
-    closedWorkOrders: 900,
-  };
-  
   return (
-    <div className="app-container">
+    <div className="app-container mb-5">
       <Navbar />
-      <Container fluid>
-        <Box
-          component="main"
-          sx={{
-            margin: { xs: "5rem 1rem 0", md: "6rem 2rem 0" },
-            minHeight: "calc(100vh - 5rem)",
-            transition: "margin 0.3s ease",
-          }}
+
+      <Box
+        component="main"
+        sx={{
+          margin: { xs: "5rem 1rem 0", md: "6rem 2rem 0" },
+          minHeight: "calc(100vh - 5rem)",
+          transition: "margin 0.3s ease",
+        }}
+      >
+        <Sidebar isOpen={sidebarOpen} width={sidebarWidth} />
+
+        <main
+          className="content-area mb-4"
+          style={{ marginLeft: `${sidebarWidth}px` }}
         >
-          <Sidebar isOpen={sidebarOpen} width={sidebarWidth} />
-          <main
-            className="content-area mb-4"
-            style={{ marginLeft: `${sidebarWidth}px` }}
-          >
-            {/* Header */}
-            <Row className="my-5 justify-content-between">
-              <Col xs={8} md={4} sm={8}>
-                <h4 className="service-title">Service Request 👋</h4>
-              </Col>
-              <Col xs={4} md={4} sm={4} className="d-flex justify-content-center">
-                <Dropdown className="report">
-                  <Dropdown.Toggle 
-                    variant="primary" 
-                    className="create-service-dropdown "
-                    style={{
-                      backgroundColor: '#1565c0',
-                      border: 'none',
-                      padding: '10px 15px',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
-                  >
-                    <AddIcon className="create-icon" />
-                    <span>Select Action</span>
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu className="report_menu">
-                    <Dropdown.Item onClick={() => handleAction('changeStatus')}>
-                      Change Status
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleAction('selectOwner')}>
-                      Select Owner
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleAction('takeOwnership')}>
-                      Take Ownership
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Item onClick={() => handleAction('runReports')}>
-                      Run Reports
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleAction('cognosAnalytics')}>
-                      Cognos Analytics
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </Col>
-              <Col xs={3} md={4} className="d-flex justify-content-end">
-                <Link className="create-service">
+          {/* Header */}
+          <Row className="my-5 justify-content-between">
+            <Col xs={8} md={4} sm={8}>
+              <h4
+                className="service-title"
+                style={{
+                  padding: "10px 15px",
+                  borderRadius: "8px",
+                  color: "#1565c0",
+                  fontWeight: "bold",
+                }}
+              >
+                Service Request 👋
+              </h4>
+            </Col>
+
+            {/* Dropdown Actions */}
+            <Col xs={4} md={4} sm={4} className="d-flex justify-content-center">
+              <Dropdown className="report">
+                <Dropdown.Toggle
+                  variant="primary"
+                  className="create-service-dropdown"
+                  style={{
+                    backgroundColor: "#1565c0",
+                    border: "none",
+                    padding: "10px 15px",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
                   <AddIcon className="create-icon" />
-                  <span>Create Service Request</span>
-                </Link>
-              </Col>
-            </Row>
+                  <span>Select Action</span>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="report_menu">
+                  <Dropdown.Item onClick={() => handleAction("changeStatus")}>
+                    Change Status
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleAction("selectOwner")}>
+                    Select Owner
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleAction("takeOwnership")}>
+                    Take Ownership
+                  </Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={() => handleAction("runReports")}>
+                    Run Reports
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => handleAction("cognosAnalytics")}
+                  >
+                    Cognos Analytics
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Col>
 
-            {/* Dashboard Stats */}
-            <Row className="mb-4">
-              <Col md={3} className="mb-3">
-                <Box className="stat-card" sx={{ p: 2, backgroundColor: '#e3f2fd', borderRadius: 2 }}>
-                  <h6 className="text-primary">Service Requests</h6>
-                  <h4 className="fw-bold">{dashboardStats.serviceRequests}</h4>
-                </Box>
-              </Col>
-              <Col md={3} className="mb-3">
-                <Box className="stat-card" sx={{ p: 2, backgroundColor: '#e8f5e9', borderRadius: 2 }}>
-                  <h6 className="text-success">All Work Orders</h6>
-                  <h4 className="fw-bold">{dashboardStats.allWorkOrders}</h4>
-                </Box>
-              </Col>
-              <Col md={3} className="mb-3">
-                <Box className="stat-card" sx={{ p: 2, backgroundColor: '#fff3e0', borderRadius: 2 }}>
-                  <h6 className="text-warning">Pending Work Orders</h6>
-                  <h4 className="fw-bold">{dashboardStats.pendingWorkOrders}</h4>
-                </Box>
-              </Col>
-              <Col md={3} className="mb-3">
-                <Box className="stat-card" sx={{ p: 2, backgroundColor: '#fbe9e7', borderRadius: 2 }}>
-                  <h6 className="text-danger">Closed Work Orders</h6>
-                  <h4 className="fw-bold">{dashboardStats.closedWorkOrders}</h4>
-                </Box>
-              </Col>
-            </Row>
-         {/* Service Requests Table */}
-            <Box
-              className="table-container"
-              sx={{
-                p: 3,
-                backgroundColor: "white",
-                borderRadius: 2,
-                boxShadow: 1,
-              }}
-            >
-              <h5 className="mb-3">Service Requests</h5>
-      <TableData rows={srData} loading={false} error={null} />
+            {/* Create Service Request */}
+            <Col xs={3} md={4} className="d-flex justify-content-end">
+              <Link className="create-service">
+                <AddIcon className="create-icon" />
+                <span>Create Service Request</span>
+              </Link>
+            </Col>
+          </Row>
 
-              {/* <Table responsive striped hover>
-                <thead>
-                  <tr>
-                    <th>Number</th>
-                    <th>Status</th>
-                    <th>Owner</th>
-                    <th>Priority</th>
-                    <th>Created</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {srData.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.number}</td>
-                      <td>
-                        <span
-                          className={`status-badge ${item.status
-                            .toLowerCase()
-                            .replace(" ", "-")}`}
+          {/* Dashboard Stats */}
+          <Row className="mb-4">
+            {/*The Filtration Card*/}
+            <Col md={6} className="mb-3">
+              <Grid container spacing={2}>
+                {stats.map((item, index) => (
+                  <Grid item xs={12} key={index}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        p: 2,
+                        borderRadius: 3,
+                        background: item.color,
+                        color: "#fff",
+                        boxShadow: "0 6px 15px rgba(0,0,0,0.1)",
+                        transition: "all 0.3s ease",
+                        cursor: "pointer",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
+                        },
+                      }}
+                    >
+                      <Box
+                        onClick={() => {
+                          changeColor(item.color);
+                          ShowTotalSr(item.filter);
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ opacity: 0.9, fontWeight: 600 }}
                         >
-                          {item.status}
-                        </span>
-                      </td>
-                      <td>{item.owner}</td>
-                      <td>
-                        <span
-                          className={`priority-badge ${item.priority.toLowerCase()}`}
-                        >
-                          {item.priority}
-                        </span>
-                      </td>
-                      <td>{item.created}</td>
-                      <td>
-                        <button className="btn btn-sm btn-outline-primary">
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table> */}
-            </Box>
+                          {item.label}
+                        </Typography>
+                        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                          {item.value}
+                        </Typography>
+                      </Box>
+                      {item.icon}
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </Col>
+          </Row>
 
-            {/* <div className="mb-5">
-              <TableData srData={srData} />
-            </div> */}
-          </main>
-           {showReportsModal && (
-                          <ReportsModal 
-              show={showReportsModal} 
-              onHide={handleCloseReportsModal} 
-                          reportType={"SR"}
-
+          {/* Service Requests Table */}
+          {filter === "1" ? (
+            <TableData
+              loading={srLoading}
+              error={srError}
+              srDataTwo={srDataTwo} // ✅ filtered state
+              ColorTable={color}
             />
-            )}
-        </Box>
+          ) : (
+            <WFTableData
+              loading={wfSrLoading}
+              error={wfSrError}
+              srDataTwo={srDataTwo} // ✅ filtered state
+              ColorTable={color}
+            />
+          )}
 
-        
-      </Container>
+          {/* Reports Modal */}
+          {showReportsModal && (
+            <ReportsModal
+              show={showReportsModal}
+              onHide={() => setShowReportsModal(false)}
+              reportType="SR"
+            />
+          )}
+        </main>
+      </Box>
     </div>
   );
 };
