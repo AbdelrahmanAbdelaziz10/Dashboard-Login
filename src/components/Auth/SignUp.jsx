@@ -34,7 +34,7 @@ const SignUp = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle sign up logic here
-    console.log(formData);
+    // console.log(formData);
   };
 
   const togglePasswordVisibility = () => {

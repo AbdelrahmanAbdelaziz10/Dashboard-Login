@@ -30,8 +30,8 @@ const Login = () => {
     setError(null);
 
     try {
-      const apiUrl = `/maximo/maxrest/oslc/os/PORTALUSER?lean=1&oslc.select=*&oslc.where=user.LOGINID="${userName}"&_lid=${userName}&_lpwd=${password}`;
-      // const apiUrl = `http://192.168.0.73:9080/maximo/maxrest/oslc/os/PORTALUSER?lean=1&oslc.select=*&oslc.where=user.LOGINID="${userName}"&_lid=${userName}&_lpwd=${password}`;
+      // const apiUrl = `/maximo/maxrest/oslc/os/PORTALUSER?lean=1&oslc.select=*&oslc.where=user.LOGINID="${userName}"&_lid=${userName}&_lpwd=${password}`;
+      const apiUrl = `http://192.168.0.73:9080/maxrest/oslc/os/PORTALUSER?lean=1&oslc.select=*&oslc.where=user.LOGINID="${userName}"&_lid=${userName}&_lpwd=${password}`;
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -43,7 +43,6 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        // ❌ لو الـ status مش 200 امسح أي بيانات قديمة
         localStorage.removeItem("userData");
         throw new Error("Invalid username or password");
       }
@@ -140,7 +139,7 @@ const Login = () => {
           <label htmlFor="termsCheck">
             I agree to Ultimate Trade Terms of use
           </label>
-</div>
+        </div>
 
         <button type="submit" className="login-button" disabled={isLoading}>
           {isLoading ? "Signing In..." : "Sign In"}

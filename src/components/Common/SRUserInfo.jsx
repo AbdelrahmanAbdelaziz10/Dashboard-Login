@@ -3,49 +3,72 @@ import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Col, Row } from "react-bootstrap";
-import { Input } from "@mui/material";
+import { Input, IconButton } from "@mui/material";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-const SRUserInfo = ({ UserInformation }) => {
+const SRUserInfo = ({ UserInformation, RowDataSr, width }) => {
   const theme = useTheme();
 
   return (
     <Row className="my-4 justify-content-between px-3">
-      {UserInformation?.map((item, idx) => (
-        <Col xs={12} md={12} lg={12} key={idx}>
+      <Col xs={12}>
+        {UserInformation?.map((item, idx) => (
           <Box
+            key={idx}
             sx={{
               marginBottom: 2,
               display: "flex",
-              flexDirection: "row",
               alignItems: "center",
-              gap: 2,
+              gap: 1.5,
             }}
           >
             {/* Label */}
             <Typography
               sx={{
-                width: "120px", // ✅ all labels same width
+                flexBasis: width || "120px", 
+                flexShrink: 0,               
                 fontWeight: 500,
                 color: "text.secondary",
+                textTransform: "capitalize",
               }}
             >
               {item.label}:
             </Typography>
 
-            {/* Input (takes the rest of the space) */}
-            <Input
-              fullWidth
-              value={item.value || ""}
-              readOnly
+            {/* Input + Optional Calendar Icon */}
+            <Box
               sx={{
-                flex: 1, // ✅ input stretches evenly
-                borderBottom: "1px dotted #999", // mimic underline style
-                "& input": { textAlign: "left" },
+                display: "flex",
+                alignItems: "center",
+                flex: 1,
+                gap: 0.5,
               }}
-            />
+            >
+              <Input
+                type={item.type || "text"}
+                fullWidth
+                value={item.Value || ""}
+                readOnly
+                sx={{
+                  flex: 1,
+                  borderBottom: "1px dotted #999",
+                  "& input": { textAlign: "left" },
+                }}
+              />
+
+              {/* Show calendar icon if it's a date */}
+              {item.type === "date" && (
+                <IconButton
+                  size="small"
+                  sx={{ color: "#1565c0", marginTop: 1 }}
+                >
+                  <CalendarMonthIcon sx={{ fontSize: 22 }} />
+                </IconButton>
+              )}
+            </Box>
           </Box>
-        </Col>
-      ))}
+        ))}
+      </Col>
     </Row>
   );
 };

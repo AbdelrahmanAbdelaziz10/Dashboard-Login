@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 const WFTableData = ({ srDataTwo, ColorTable, loading, error }) => {
   const [page, setPage] = React.useState(0);
   const rowsPerPage = 10; // fixed to 10 rows per page
-  console.log("new Api:", srDataTwo);
+  // console.log("new Api:", srDataTwo);
   const navigate = useNavigate(); // ✅ hook for navigation
 
   const handleChangePage = (_, newPage) => {
@@ -55,22 +55,80 @@ const WFTableData = ({ srDataTwo, ColorTable, loading, error }) => {
     );
   }
 
-  if (!srDataTwo.length) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          p: 4,
-          color: "text.secondary",
-        }}
-      >
-        No service requests found
-      </Box>
-    );
-  }
+if (!srDataTwo || srDataTwo.length === 0) {
+  return (
+    <Box
+      sx={{
+        background: "linear-gradient(145deg, #f9f9f9, #ffffff)",
+        marginBottom: "2rem",
+        borderRadius: 3,
+        boxShadow: "0 8px 20px rgba(0, 0, 0, 0.08)",
+        overflow: "hidden",
+        transition: "all 0.3s ease-in-out",
+        "&:hover": {
+          boxShadow: "0 12px 24px rgba(0, 0, 0, 0.12)",
+        },
+      }}
+    >
+      <Paper sx={{ boxShadow: "none", borderRadius: 3 }}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow
+              sx={{
+                background:
+                  ColorTable ||
+                  "linear-gradient(90deg, #1565c0 0%, #1e88e5 100%)",
+              }}
+            >
+              <TableCell
+                colSpan={10}
+                sx={{
+                  color: "white",
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  letterSpacing: "0.5px",
+                  background: ColorTable || "#1565c0",
+                }}
+              >
+                Service Requests
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="table-header">Service Request</TableCell>
+              <TableCell className="table-header">Summary</TableCell>
+              <TableCell className="table-header">Department</TableCell>
+              <TableCell className="table-header">Work Type</TableCell>
+              <TableCell className="table-header">Priority</TableCell>
+              <TableCell className="table-header">Requested by</TableCell>
+              <TableCell className="table-header">Reported Date</TableCell>
+              <TableCell className="table-header">Status</TableCell>
+              <TableCell className="table-header">Status Date</TableCell>
+              <TableCell className="table-header">Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell
+                colSpan={10}
+                sx={{
+                  textAlign: "center",
+                  padding: "2rem",
+                  fontSize: "1rem",
+                  color: "#555",
+                }}
+              >
+                🚫 No service requests found
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Paper>
+    </Box>
+  );
+}
 
-  console.log(currentRows);
+  // console.log(currentRows);
 
   return (
     <Box
@@ -123,61 +181,66 @@ const WFTableData = ({ srDataTwo, ColorTable, loading, error }) => {
               <TableCell className="table-header">Action</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {currentRows.map((item) => (
-              <TableRow
-                key={item.sr[0]?.ticketid}
-                hover
-                sx={{
-                  transition: "all 0.2s",
-                  "&:hover": {
-                    backgroundColor: "#f5faff",
-                    transform: "scale(1.01)",
-                  },
-                }}
-              >
-                <TableCell>{item.sr[0]?.ticketid || "NULL"}</TableCell>{" "}
-                <TableCell>{item.sr[0]?.description || "NULL"}</TableCell>{" "}
-                <TableCell>{item.sr[0]?.exedept || "NULL"}</TableCell>{" "}
-                <TableCell>{item.sr[0]?.worktype || "NULL"}</TableCell>{" "}
-                <TableCell>{item.sr[0]?.reportedpriority || "NULL"}</TableCell>{" "}
-                <TableCell>{item.sr[0]?.reportedby || "NULL"}</TableCell>{" "}
-                <TableCell>{item.sr[0]?.reportdate || "NULL"}</TableCell>{" "}
-                <TableCell>
-                  <span
-                    className={`status-badge ${item.sr[0]?.status
-                      ?.toLowerCase()
-                      .replace(" ", "-")}`}
-                  >
-                    {item.sr[0]?.status}{" "}
-                  </span>
-                </TableCell>
-                <TableCell>{item.sr[0]?.statusdate}</TableCell>
-                <TableCell>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    sx={{
-                      borderRadius: "20px",
-                      textTransform: "none",
-                      fontWeight: "bold",
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#1565c0",
-                        color: "white",
-                      },
-                    }}
-                    onClick={() =>
-                      navigate(`/service-request/${item.sr[0]?.ticketid}`)
-                    } // ✅ navigate to details page
-                  >
-                    View
-                  </Button>
-                </TableCell>
+ <TableBody>
+  {currentRows.map((item, index) => {
+    const sr = item?.sr?.[0]; // ✅ safe access
+    if (!sr) {
+      return null; // skip rows without sr data
+    }
 
-              </TableRow>
-            ))}
-          </TableBody>
+    return (
+      <TableRow
+        key={sr.ticketid || index}
+        hover
+        sx={{
+          transition: "all 0.2s",
+          "&:hover": {
+            backgroundColor: "#f5faff",
+            transform: "scale(1.01)",
+          },
+        }}
+      >
+        <TableCell>{sr.ticketid || "NULL"}</TableCell>
+        <TableCell>{sr.description || "NULL"}</TableCell>
+        <TableCell>{sr.exedept || "NULL"}</TableCell>
+        <TableCell>{sr.worktype || "NULL"}</TableCell>
+        <TableCell>{sr.reportedpriority || "NULL"}</TableCell>
+        <TableCell>{sr.reportedby || "NULL"}</TableCell>
+        <TableCell>{sr.reportdate || "NULL"}</TableCell>
+        <TableCell>
+          <span
+            className={`status-badge ${sr.status
+              ?.toLowerCase()
+              ?.replace(" ", "-")}`}
+          >
+            {sr.status || "NULL"}
+          </span>
+        </TableCell>
+        <TableCell>{sr.statusdate || "NULL"}</TableCell>
+        <TableCell>
+          <Button
+            size="small"
+            variant="outlined"
+            sx={{
+              borderRadius: "20px",
+              textTransform: "none",
+              fontWeight: "bold",
+              px: 2,
+              "&:hover": {
+                backgroundColor: "#1565c0",
+                color: "white",
+              },
+            }}
+            onClick={() => navigate(`/service-request/${sr.ticketid}`)}
+          >
+            View
+          </Button>
+        </TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
+
         </Table>
 
         <TablePagination

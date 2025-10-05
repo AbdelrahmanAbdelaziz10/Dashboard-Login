@@ -32,7 +32,7 @@ export default function WorkFlowView({ open, onClose, item }) {
 
         const data = await response.json();
         setWorkFlowData(data || []);
-        console.log("data in work flow:",WorkFlowData)
+        // console.log("data in work flow:",WorkFlowData)
       } catch (err) {
         setError(err.message);
       } finally {
@@ -42,7 +42,7 @@ export default function WorkFlowView({ open, onClose, item }) {
 
     fetchData();
   }, []);
-        console.log("data out work flow:",WorkFlowData)
+        // console.log("data out work flow:",WorkFlowData)
 
   if (!item) return null; // nothing selected yet
 

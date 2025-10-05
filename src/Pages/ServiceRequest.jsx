@@ -1,3 +1,5 @@
+// ✅ ServiceRequest.jsx — Final Version
+
 import { useEffect, useState } from "react";
 import { Col, Row, Dropdown } from "react-bootstrap";
 import { Box, Typography, Grid } from "@mui/material";
@@ -11,57 +13,51 @@ import AddIcon from "@mui/icons-material/Add";
 import "../Style/ServiceRequest.css";
 import ReportsModal from "../components/ReportsModal";
 import { getFetch } from "../hooks/getFetch";
-import { Outlet } from "react-router-dom";
 import WFTableData from "../components/Common/WFTableData";
-import SystemDate from "../components/Common/SystemDate";
 
 const ServiceRequest = () => {
-    const [dateTime, setDateTime] = useState("");
+  // === State variables ===
+  const [startDateTime, setStartDateTime] = useState("");
+  const [endDateTime, setEndDateTime] = useState("");
+  const [filter, setFilter] = useState("1");
+  const [srDataTwo, setSrDataTwo] = useState([]);
+  const [color, setColor] = useState("");
+  const [showReportsModal, setShowReportsModal] = useState(false);
 
-  // ✅ function to get date with timezone
-  const getSystemDateWithOffset = () => {
+  // ✅ Get start & finish of current day
+  const getStartDate = () => {
     const date = new Date();
-
-    const offset = -date.getTimezoneOffset(); // offset in minutes
-    const sign = offset >= 0 ? "+" : "-";
     const pad = (n) => String(Math.floor(Math.abs(n))).padStart(2, "0");
-
-    const hours = pad(offset / 60);
-    const minutes = pad(offset % 60);
-
     return (
       date.getFullYear() +
       "-" +
       pad(date.getMonth() + 1) +
       "-" +
       pad(date.getDate()) +
-      "T" +
-      pad(date.getHours()) +
-      ":" +
-      pad(date.getMinutes()) +
-      ":" +
-      pad(date.getSeconds()) +
-      sign +
-      hours +
-      ":" +
-      minutes
+      "T00:00:00"
     );
   };
 
-  // ✅ Update every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDateTime(getSystemDateWithOffset());
-    }, 1000);
+  const getFinishDate = () => {
+    const date = new Date();
+    const pad = (n) => String(Math.floor(Math.abs(n))).padStart(2, "0");
+    return (
+      date.getFullYear() +
+      "-" +
+      pad(date.getMonth() + 1) +
+      "-" +
+      pad(date.getDate()) +
+      "T23:59:59"
+    );
+  };
 
-    return () => clearInterval(interval);
+  // ✅ Initialize start and end date only once
+  useEffect(() => {
+    setStartDateTime(getStartDate());
+    setEndDateTime(getFinishDate());
   }, []);
 
-  console.log("data:",dateTime)
-
-
-  const [filter, setFilter] = useState("1");
-  // ✅ Fetch SR data
+  // === Fetch SR data ===
   const {
     data: sRData,
     loading: srLoading,
@@ -69,85 +65,56 @@ const ServiceRequest = () => {
   } = getFetch(
     "http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=REPORTEDBY=%22HELPDESK1%22&_lid=Helpdesk%201&_lpwd=Test1234"
   );
+
   const {
     data: wfSRData,
     loading: wfSrLoading,
     error: wfSrError,
   } = getFetch(
-    "http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=app=%22SR%22&_lid=Helpdesk%201&_lpwd=Test1234"
+    startDateTime
+      ? `http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=sr.targetfinish%3C%22${startDateTime}%22&_lid=Helpdesk%201&_lpwd=Test1234`
+      : null
   );
-  // ✅ All SR data
+
+  const {
+    data: dueDay,
+    loading: dDSrLoading,
+    error: dDSrError,
+  } = getFetch(
+    startDateTime && endDateTime
+      ? `http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=sr.targetfinish%3E=%22${startDateTime}%22%20and%20sr.targetfinish%3C=%22${endDateTime}%22&_lid=Helpdesk%201&_lpwd=Test1234`
+      : null
+  );
+
+  // === Prepare data ===
   const allSRData = sRData?.member ?? [];
-  const allSRData2 = wfSRData?.member ?? [];
+  const allWFOverdue = wfSRData?.member ?? [];
+  const allWFDueToday = dueDay?.member ?? [];
 
-  // ✅ State for filtered data
-  const [srDataTwo, setSrDataTwo] = useState(allSRData);
-  const [dataLength, setDataLength] = useState(srDataTwo.length);
-
-  // update whenever API data changes
+  // ✅ update data based on API
   useEffect(() => {
     setSrDataTwo(allSRData);
   }, [sRData]);
 
-  // ✅ Filter logic
+  // === Filter logic ===
   const ShowTotalSr = (value) => {
     setFilter(value);
-    if (value === "1") {
-      setSrDataTwo(allSRData); // ✅ Show all
-      setDataLength(srDataTwo.length);
-    } else if (value === "2") {
-      setSrDataTwo(allSRData2); // ✅ Empty
-      setDataLength(srDataTwo.length);
-    } else if (value === "3") {
-      setSrDataTwo([]);
-      setDataLength(0);
-    }
+    if (value === "1") setSrDataTwo(allSRData);
+    else if (value === "2") setSrDataTwo(allWFOverdue);
+    else if (value === "3") setSrDataTwo(allWFDueToday);
   };
-  const stats = [
-    {
-      label: "Total SR",
-      value: allSRData.length,
-      color: "linear-gradient(135deg, #ff9a9e, #f6416c)", // box color
-      headerColor: "#f6416c", // ✅ solid color for header
-      icon: <Assignment fontSize="large" />,
-      filter: "1",
-    },
-    {
-      label: "Overview",
-      value: allSRData2.length,
-      color: "linear-gradient(135deg, #6a11cb, #2575fc)",
-      headerColor: "#2575fc",
-      icon: <BarChart fontSize="large" />,
-      filter: "2",
-    },
-    {
-      label: "Due Today",
-      value: 0,
-      color: "linear-gradient(135deg, #f7971e, #ffd200)",
-      headerColor: "#f7971e",
-      icon: <EventAvailable fontSize="large" />,
-      filter: "3",
-    },
-  ];
 
-  {
-    /* Filter To Total SR*/
-  }
-
+  // === Sidebar ===
   const { sidebarOpen } = useSidebar();
   const sidebarWidth = sidebarOpen ? 220 : 65;
-  const [color, setColor] = useState();
-  const [showReportsModal, setShowReportsModal] = useState(false);
-  const [selectedAction, setSelectedAction] = useState(null);
 
+  // === Color change on card click ===
   const changeColor = (value) => {
     setColor(value);
   };
 
-  // ✅ Handle actions
+  // === Dropdown actions ===
   const handleAction = (action) => {
-    setSelectedAction(action);
-
     switch (action) {
       case "changeStatus":
         console.log("Changing status...");
@@ -159,7 +126,6 @@ const ServiceRequest = () => {
         console.log("Taking ownership...");
         break;
       case "runReports":
-        console.log("Running reports...");
         setShowReportsModal(true);
         break;
       case "cognosAnalytics":
@@ -170,10 +136,38 @@ const ServiceRequest = () => {
     }
   };
 
+  // === Stats Data ===
+  const stats = [
+    {
+      label: "Total SR",
+      value: allSRData.length,
+      color: "linear-gradient(135deg, #ff9a9e, #f6416c)",
+      headerColor: "#f6416c",
+      icon: <Assignment fontSize="large" />,
+      filter: "1",
+    },
+    {
+      label: "Overdue",
+      value: allWFOverdue.length,
+      color: "linear-gradient(135deg, #6a11cb, #2575fc)",
+      headerColor: "#2575fc",
+      icon: <BarChart fontSize="large" />,
+      filter: "2",
+    },
+    {
+      label: "Due Today",
+      value: allWFDueToday.length,
+      color: "linear-gradient(135deg, #f7971e, #ffd200)",
+      headerColor: "#f7971e",
+      icon: <EventAvailable fontSize="large" />,
+      filter: "3",
+    },
+  ];
+
+  // === UI ===
   return (
     <div className="app-container mb-5">
       <Navbar />
-
       <Box
         component="main"
         sx={{
@@ -188,11 +182,10 @@ const ServiceRequest = () => {
           className="content-area mb-4"
           style={{ marginLeft: `${sidebarWidth}px` }}
         >
-          {/* Header */}
+          {/* ===== Header ===== */}
           <Row className="my-5 justify-content-between">
-            <Col xs={8} md={4} sm={8}>
+            <Col xs={8} md={4}>
               <h4
-                className="service-title"
                 style={{
                   padding: "10px 15px",
                   borderRadius: "8px",
@@ -205,11 +198,10 @@ const ServiceRequest = () => {
             </Col>
 
             {/* Dropdown Actions */}
-            <Col xs={4} md={4} sm={4} className="d-flex justify-content-center">
-              <Dropdown className="report">
+            <Col xs={4} md={4} className="d-flex justify-content-center">
+              <Dropdown>
                 <Dropdown.Toggle
                   variant="primary"
-                  className="create-service-dropdown"
                   style={{
                     backgroundColor: "#1565c0",
                     border: "none",
@@ -220,10 +212,9 @@ const ServiceRequest = () => {
                     gap: "8px",
                   }}
                 >
-                  <AddIcon className="create-icon" />
-                  <span>Select Action</span>
+                  <AddIcon /> <span>Select Action</span>
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="report_menu">
+                <Dropdown.Menu>
                   <Dropdown.Item onClick={() => handleAction("changeStatus")}>
                     Change Status
                   </Dropdown.Item>
@@ -246,22 +237,21 @@ const ServiceRequest = () => {
               </Dropdown>
             </Col>
 
-            {/* Create Service Request */}
+            {/* Create SR */}
             <Col xs={3} md={4} className="d-flex justify-content-end">
               <Link className="create-service">
-                <AddIcon className="create-icon" />
+                <AddIcon />
                 <span>Create Service Request</span>
               </Link>
             </Col>
           </Row>
 
-          {/* Dashboard Stats */}
+          {/* ===== Stats Cards ===== */}
           <Row className="mb-4">
-            {/*The Filtration Card*/}
             <Col md={6} className="mb-3">
               <Grid container spacing={2}>
                 {stats.map((item, index) => (
-                  <Grid item xs={12} key={index}>
+                  <Grid size={4} key={index}>
                     <Box
                       sx={{
                         display: "flex",
@@ -279,13 +269,12 @@ const ServiceRequest = () => {
                           boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
                         },
                       }}
+                      onClick={() => {
+                        changeColor(item.color);
+                        ShowTotalSr(item.filter);
+                      }}
                     >
-                      <Box
-                        onClick={() => {
-                          changeColor(item.color);
-                          ShowTotalSr(item.filter);
-                        }}
-                      >
+                      <Box>
                         <Typography
                           variant="subtitle2"
                           sx={{ opacity: 0.9, fontWeight: 600 }}
@@ -304,22 +293,29 @@ const ServiceRequest = () => {
             </Col>
           </Row>
 
-          {/* Service Requests Table */}
+          {/* ===== Tables ===== */}
           {filter === "1" ? (
             <TableData
               loading={srLoading}
               error={srError}
-              srDataTwo={srDataTwo} // ✅ filtered state
+              srDataTwo={srDataTwo}
               ColorTable={color}
             />
-          ) : (
+          ) : filter === "2" ? (
             <WFTableData
               loading={wfSrLoading}
               error={wfSrError}
-              srDataTwo={srDataTwo} // ✅ filtered state
+              srDataTwo={srDataTwo}
               ColorTable={color}
             />
-          )}
+          ) : filter === "3" ? (
+            <WFTableData
+              loading={dDSrLoading}
+              error={dDSrError}
+              srDataTwo={srDataTwo}
+              ColorTable={color}
+            />
+          ) : null}
 
           {/* Reports Modal */}
           {showReportsModal && (

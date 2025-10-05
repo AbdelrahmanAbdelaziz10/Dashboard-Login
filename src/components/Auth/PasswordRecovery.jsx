@@ -11,7 +11,7 @@ const PasswordRecovery = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ email });
+    // console.log({ email });
     alert(`Password recovery link sent to ${email}`);
     // Add your password recovery logic here
   };

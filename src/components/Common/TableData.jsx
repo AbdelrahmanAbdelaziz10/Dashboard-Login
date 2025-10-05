@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
   const [page, setPage] = React.useState(0);
   const rowsPerPage = 10; // fixed to 10 rows per page
-  console.log("new Api:", srDataTwo);
+  // console.log("new Api:", srDataTwo);
   const navigate = useNavigate(); // ✅ hook for navigation
 
   const handleChangePage = (_, newPage) => {
@@ -70,7 +70,7 @@ const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
     );
   }
 
-  console.log(currentRows);
+  // console.log(currentRows);
 
   return (
     <Box
@@ -136,20 +136,20 @@ const TableData = ({ srDataTwo, ColorTable, loading, error }) => {
                   },
                 }}
               >
-                <TableCell>{item.ticketid || "NULL"}</TableCell>{" "}
-                <TableCell>{item.description || "NULL"}</TableCell>{" "}
-                <TableCell>{item.exedept || "NULL"}</TableCell>{" "}
-                <TableCell>{item.worktype || "NULL"}</TableCell>{" "}
-                <TableCell>{item.reportedpriority || "NULL"}</TableCell>{" "}
-                <TableCell>{item.reportedby || "NULL"}</TableCell>{" "}
-                <TableCell>{item.reportdate || "NULL"}</TableCell>{" "}
+                <TableCell>{item.ticketid || "NULL"}</TableCell> 
+                <TableCell>{item.description || "NULL"}</TableCell> 
+                <TableCell>{item.exedept || "NULL"}</TableCell> 
+                <TableCell>{item.worktype || "NULL"}</TableCell> 
+                <TableCell>{item.reportedpriority || "NULL"}</TableCell> 
+                <TableCell>{item.reportedby || "NULL"}</TableCell> 
+                <TableCell>{item.reportdate || "NULL"}</TableCell> 
                 <TableCell>
                   <span
                     className={`status-badge ${item.status
                       ?.toLowerCase()
                       .replace(" ", "-")}`}
                   >
-                    {item.status}{" "}
+                    {item.status} 
                   </span>
                 </TableCell>
                 <TableCell>{item.statusdate}</TableCell>
