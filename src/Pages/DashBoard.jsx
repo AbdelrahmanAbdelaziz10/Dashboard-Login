@@ -14,45 +14,12 @@ export function DashBoard() {
   const { sidebarOpen } = useSidebar();
   const sidebarWidth = sidebarOpen ? 220 : 65;
 
-  const [dataSR, setDataSR] = useState([]);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Modal state
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const apiUrl =
-          "/maximo/maxrest/oslc/os/MXAPIWFASSIGNMENT?lean=1&oslc.select=*&_lid=Helpdesk%201&_lpwd=Test1234";
 
-        const response = await fetch(apiUrl, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        setDataSR(data.member || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleView = (item) => {
-    setSelectedItem(item); // Pass clicked row to modal
-    setOpen(true);
-  };
 
   return (
     <div className="app-container">
