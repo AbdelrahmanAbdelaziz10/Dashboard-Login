@@ -12,7 +12,7 @@ import {
 import Navbar from "../components/Common/Navbar";
 import Sidebar from "../components/Common/Sidebar";
 import "../Style/SRPaggesDetails.css";
-
+import SRMap from "../components/ServesDetailsCom/SRMap";
 import { getFetch } from "../hooks/getFetch";
 import ExtendNavBarTabs from "../components/ServesDetailsCom/ExtendNavBarTabs";
 import SRDetailsCom from "../components/ServesDetailsCom/SRDetailsCom";
@@ -39,7 +39,7 @@ const ServiceRequestPage = () => {
     "No content available for Log tab.",
     "No content available for Specifications tab.",
     "No content available for Service Address tab.",
-    "No content available for Map tab.",
+    <SRMap />,
   ];
   return (
     <div className=" mb-5">
