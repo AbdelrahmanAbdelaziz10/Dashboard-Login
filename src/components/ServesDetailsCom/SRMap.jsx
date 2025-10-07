@@ -29,8 +29,8 @@ const SRMap = () => {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
     setMarkerPosition({ lat, lng });
-            console.log(" mapCenter:", mapCenter);
-    console.log("Selected coordinates:", markerPosition);
+    //         console.log(" mapCenter:", mapCenter);
+    // console.log("Selected coordinates:", markerPosition);
   };
 
  
@@ -43,14 +43,8 @@ const SRMap = () => {
 
   return (
      
-            <Card className="address_card p-4 shadow-sm">
-              {/* Header */}
-              <div className="d-flex align-items-center mb-3">
-                               <h4 className="text-center flex-grow-1 m-0">Select Location</h4>
-              </div>
 
-              {/* Map Section */}
-              <div className="mb-4">
+              <div className="">
                 <LoadScript googleMapsApiKey="AIzaSyBrgBBWX4PHPWcna4wXPhGvwK7d-leCZQk">
                   {mapCenter && (
                     <GoogleMap
@@ -59,7 +53,7 @@ const SRMap = () => {
                       onClick={handleMapClick}
                       mapContainerStyle={{
                         width: "100%",
-                        height: "550px",
+                        height: "78vh",
                         borderRadius: "10px",
                       }}
                     >
@@ -69,16 +63,7 @@ const SRMap = () => {
                 </LoadScript>
               </div>
 
-              {/* Button */}
-              {/* <div className="text-center">
-                {/* <button
-                  onClick={handleAddAddress}
-                  className="btn btn-success w-75"
-                >
-                  Add New Address
-                </button> 
-              </div> */}
-            </Card>
+         
           
   );
 };

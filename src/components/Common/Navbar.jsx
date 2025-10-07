@@ -14,8 +14,14 @@ import { Container } from "react-bootstrap";
 import profile from "../../assets/profile.png";
 import { useSidebar } from "../Context/SidebarContext";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
 
 export default function Navbar() {
+
+    const { userData, isAuthenticated, logout } = useAuth();
+    const storedUserData = JSON.parse(localStorage.getItem("userData"));
+    // console.log("stored user data : ",storedUserData.displayname)
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const { toggleSidebar } = useSidebar();
@@ -27,22 +33,25 @@ export default function Navbar() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  const handleLogout = () => {
-  // 🗑️ امسح بيانات localStorage
-  localStorage.removeItem("userData");
 
-  // 🗑️ امسح الكوكيز اللي المتصفح شايفها (مش HttpOnly)
-  document.cookie.split(";").forEach((cookie) => {
-    const name = cookie.split("=")[0].trim();
-    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  });
+//   const handleLogout = () => {
+//   // 🗑️ امسح بيانات localStorage
+//   localStorage.removeItem("userData");
 
-  // ✅ رجّع لصفحة login
-  navigate("/login", { replace: true });
-};
+//   // 🗑️ امسح الكوكيز اللي المتصفح شايفها (مش HttpOnly)
+//   document.cookie.split(";").forEach((cookie) => {
+//     const name = cookie.split("=")[0].trim();
+//     document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+//   });
+
+//   // ✅ رجّع لصفحة login
+//   navigate("/login", { replace: true });
+// };
   const handleMenuAction = (action) => {
     if (action === "logout") {
-      handleLogout()
+      // handleLogout()
+      logout();
+      navigate("/login")
 
     }
 
@@ -133,7 +142,7 @@ export default function Navbar() {
             </IconButton>
 
             <div className="avatar-div">
-              <p>Mohamed</p>
+              <p>{storedUserData.displayname}</p>
             </div>
 
             <Menu

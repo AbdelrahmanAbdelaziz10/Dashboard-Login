@@ -231,7 +231,8 @@
   color: #1565c0;
 }
 
-.status-badge.in-progress {
+.status-badge.in-progress ,
+.status-badge.inprog {
   background-color: #fff3e0;
   color: #f57c00;
 }

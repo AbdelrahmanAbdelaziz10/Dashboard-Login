@@ -1,5 +1,4 @@
 // ✅ ServiceRequest.jsx — Final Version
-
 import { useEffect, useState } from "react";
 import { Col, Row, Dropdown } from "react-bootstrap";
 import { Box, Typography, Grid } from "@mui/material";
@@ -14,8 +13,11 @@ import "../Style/ServiceRequest.css";
 import ReportsModal from "../components/ReportsModal";
 import { getFetch } from "../hooks/getFetch";
 import WFTableData from "../components/Common/WFTableData";
+import { useAuth } from "../components/Context/AuthContext";
 
 const ServiceRequest = () => {
+  const {username,userId,password}=useAuth();
+  // console.log("userName: ",username+" Password: "+ password +  " userId: "+ userId)
   // === State variables ===
   const [startDateTime, setStartDateTime] = useState("");
   const [endDateTime, setEndDateTime] = useState("");
@@ -63,7 +65,7 @@ const ServiceRequest = () => {
     loading: srLoading,
     error: srError,
   } = getFetch(
-    "http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=REPORTEDBY=%22HELPDESK1%22&_lid=Helpdesk%201&_lpwd=Test1234"
+    `http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=REPORTEDBY=%22${userId}%22&_lid=${username}&_lpwd=${password}`
   );
 
   const {
@@ -72,7 +74,7 @@ const ServiceRequest = () => {
     error: wfSrError,
   } = getFetch(
     startDateTime
-      ? `http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=sr.targetfinish%3C%22${startDateTime}%22&_lid=Helpdesk%201&_lpwd=Test1234`
+      ? `http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=sr.targetfinish%3C%22${startDateTime}%22&_lid=${username}&_lpwd=${password}`
       : null
   );
 
@@ -82,7 +84,7 @@ const ServiceRequest = () => {
     error: dDSrError,
   } = getFetch(
     startDateTime && endDateTime
-      ? `http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=sr.targetfinish%3E=%22${startDateTime}%22%20and%20sr.targetfinish%3C=%22${endDateTime}%22&_lid=Helpdesk%201&_lpwd=Test1234`
+      ? `http://192.168.0.73:9080/maxrest/oslc/os/PORTALWFASSIGN?lean=1&oslc.select=*&oslc.where=sr.targetfinish%3E=%22${startDateTime}%22%20and%20sr.targetfinish%3C=%22${endDateTime}%22&_lid=${username}&_lpwd=${password}`
       : null
   );
 
@@ -147,7 +149,7 @@ const ServiceRequest = () => {
       filter: "1",
     },
     {
-      label: "Overdue",
+      label: "Over Due",
       value: allWFOverdue.length,
       color: "linear-gradient(135deg, #6a11cb, #2575fc)",
       headerColor: "#2575fc",

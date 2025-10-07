@@ -8,8 +8,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import "../../Style/login.css";
+import { useAuth } from "../Context/AuthContext";
 
 const Login = () => {
+  const { userData, isAuthenticated, login } = useAuth();
+
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState();
   const [showPassword, setShowPassword] = useState(false);
@@ -51,8 +54,7 @@ const Login = () => {
       const user = data?.member?.[0];
 
       if (user) {
-        // ✅ خزن بس لو في بيانات يوزر فعلاً
-        localStorage.setItem("userData", JSON.stringify(user));
+        login(user, userName, password); // Pass username and password to context
         navigate("/dashboard", { replace: true });
       } else {
         // ❌ لو مفهوش يوزر امسح القديم

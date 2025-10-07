@@ -30,7 +30,7 @@ const FormsModal = ({ show, onHide, apiReportsName }) => {
   };
 
   const handleSubmit = async () => {
-    console.log("Form Submitted:", formValues);
+    // console.log("Form Submitted:", formValues);
 
     // Extract the values in the order of dataReport
     const valuesArray = dataReport.map(

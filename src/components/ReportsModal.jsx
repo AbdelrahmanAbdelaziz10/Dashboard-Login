@@ -129,7 +129,7 @@ const ReportsModal = ({ show, onHide, reportType }) => {
   const handleReportClick = (report) => {
     setSelectedReport(report);
     setReportName(report["spi:reportname"]);
-    console.log("Selected Report:", report);
+    // console.log("Selected Report:", report);
   };
 
   return (

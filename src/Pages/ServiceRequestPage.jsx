@@ -18,9 +18,11 @@ import ExtendNavBarTabs from "../components/ServesDetailsCom/ExtendNavBarTabs";
 import SRDetailsCom from "../components/ServesDetailsCom/SRDetailsCom";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../components/Context/AuthContext";
 
 const ServiceRequestPage = () => {
   const { id } = useParams();
+    const {username,userId,password}=useAuth();
   const { sidebarOpen } = useSidebar();
   const [activeTab, setActiveTab] = React.useState(0);
   const sidebarWidth = sidebarOpen ? 220 : 65;
@@ -29,7 +31,7 @@ const ServiceRequestPage = () => {
     loading: SRLoadingRow,
     error: SRErrorRow,
   } = getFetch(
-    `http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=ticketid=%22${id}%22&_lid=Helpdesk%201&_lpwd=Test1234`
+    `http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=ticketid=%22${id}%22&_lid=${username}&_lpwd=${password}`
   );
   const RowDataSr = SRDataRow?.member ?? [];
 
