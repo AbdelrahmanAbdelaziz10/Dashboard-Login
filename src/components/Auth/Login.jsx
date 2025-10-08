@@ -42,7 +42,7 @@ const Login = () => {
           "Content-Type": "application/json",
           Authorization: "Basic " + btoa(`${userName}:${password}`),
         },
-        credentials: "omit",
+        credentials: "include",
       });
 
       if (!response.ok) {

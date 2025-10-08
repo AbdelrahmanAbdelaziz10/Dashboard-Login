@@ -31,9 +31,10 @@ const ServiceRequestPage = () => {
     loading: SRLoadingRow,
     error: SRErrorRow,
   } = getFetch(
-    `http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=ticketid=%22${id}%22&_lid=${username}&_lpwd=${password}`
+    `http://192.168.0.73:9080/maxrest/oslc/os/PORTALSR?lean=1&oslc.select=*&oslc.where=ticketid=%22${id}%22&_lid=Helpdesk%201&_lpwd=Test1234`
   );
   const RowDataSr = SRDataRow?.member ?? [];
+  console.log("srdata:",RowDataSr)
 
   const tabContents = [
     <SRDetailsCom RowDataSr={RowDataSr} />,
